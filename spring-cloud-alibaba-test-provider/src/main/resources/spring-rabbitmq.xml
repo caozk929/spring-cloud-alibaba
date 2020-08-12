@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xsi:schemaLocation="
+	http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-4.0.xsd
+	http://www.springframework.org/schema/rabbit
+    http://www.springframework.org/schema/rabbit/spring-rabbit-2.2.xsd">
+
+    <context:component-scan base-package="com.eking.spring.cloud.alibaba.mq"/>
+    <!-- 引入属性文件 -->
+    <context:property-placeholder location="classpath:rabbitmq.properties" order="4" ignore-unresolvable="true"/>
+
+    <!--配置connection-factory，指定连接rabbit server参数 -->
+    <rabbit:connection-factory id="rabbitConnectionFactory" addresses="${rabbitmq.addresses}"
+                               username="${rabbitmq.username}"
+                               password="${rabbitmq.password}"
+                               channel-cache-size="${rabbitmq.channel.cache.size}"
+    />
+    <!--定义rabbit template用于数据的接收和发送 -->
+    <rabbit:template id="amqpTemplate" connection-factory="rabbitConnectionFactory"/>
+
+    <!-- 定义direct exchange，绑定queue -->
+    <rabbit:direct-exchange name="${rabbitmq.direct.exchange}" durable="true" auto-delete="false" delayed="true">
+
+    </rabbit:direct-exchange>
+
+    <!--定义订单 queue -->
+    <rabbit:queue name="orderQueue" durable="true" exclusive="false"/>
+
+    <!-- 定义fanout exchange，绑定queue -->
+    <rabbit:fanout-exchange name="${rabbitmq.fanout.exchange}" durable="true" auto-delete="false" delayed="true">
+        <rabbit:bindings>
+            <rabbit:binding queue="orderQueue"/>
+        </rabbit:bindings>
+    </rabbit:fanout-exchange>
+
+    <!-- 定义topic exchange，绑定queue -->
+    <rabbit:topic-exchange name="${rabbitmq.topic.exchange}" durable="true" auto-delete="false" delayed="true">
+    </rabbit:topic-exchange>
+
+    <!--通过指定下面的admin信息，当前producer中的exchange和queue会在rabbitmq服务器上自动生成 -->
+    <rabbit:admin id="rabbitAdmin" connection-factory="rabbitConnectionFactory"/>
+
+    <!-- MQ 监听器 -->
+    <rabbit:listener-container connection-factory="rabbitConnectionFactory" concurrency="2">
+        <rabbit:listener ref="rabbitMqConsumer" method="onMessage" queues="orderQueue"/>
+    </rabbit:listener-container>
+
+    <!--定义queue  配置延迟队列的信息-->
+    <!--<rabbit:queue name="delay_queue"-->
+    <!--durable="true"-->
+    <!---->
+    <!--auto-delete="false"-->
+    <!--declared-by="connectAdmin">-->
+    <!--</rabbit:queue>-->
+
+    <!--<rabbit:topic-exchange name="delayChangeTest"-->
+    <!--declared-by="connectAdmin" delayed="true">-->
+    <!--<rabbit:bindings>-->
+    <!--<rabbit:binding queue="delay_queue" pattern="order.delay.notify" />-->
+    <!--</rabbit:bindings>-->
+    <!--</rabbit:topic-exchange>-->
+
+</beans>

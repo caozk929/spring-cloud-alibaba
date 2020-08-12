@@ -1,0 +1,50 @@
+server:
+  port: 18081
+spring:
+  application:
+    name: nacos-geteway
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 47.56.178.49:8848
+        namespace: 14def923-8b4e-45bd-b0f0-2e874eafbe84
+      config:
+        server-addr: 47.56.178.49:8848 #nacos的serverAdd配置
+        file-extension: yaml
+        timeout: 2000
+        group: NAOCS-SPRING-CLOUD-GATEWAY
+        name: spring-cloud-gateway-routes.json
+        namespace: 14def923-8b4e-45bd-b0f0-2e874eafbe84
+    gateway:
+      discovery:
+        locator:
+          enabled: false
+          lower-case-service-id: true
+    sentinel:
+      transport:
+        dashboard: localhost:8080
+        port: 8719
+      filter:
+        enabled: false
+      datasource:
+        ds-routes:
+          nacos:
+            namespace: 14def923-8b4e-45bd-b0f0-2e874eafbe84
+            server-addr: 47.56.178.49:8848
+            dataId: spring-cloud-sentinel-routes
+            groupId: NAOCS-SPRING-CLOUD-SENTINEL
+            rule-type: gw-flow
+        ds-api:
+          nacos:
+            namespace: 14def923-8b4e-45bd-b0f0-2e874eafbe84
+            server-addr: 47.56.178.49:8848
+            dataId: spring-cloud-sentinel-api
+            groupId: NAOCS-SPRING-CLOUD-SENTINEL
+            rule-type: gw-api-group
+        ds-degrade:
+          nacos:
+            namespace: 14def923-8b4e-45bd-b0f0-2e874eafbe84
+            server-addr: 47.56.178.49:8848
+            dataId: spring-cloud-sentinel-degrade
+            groupId: NAOCS-SPRING-CLOUD-SENTINEL
+            ruleN-type: degrade
