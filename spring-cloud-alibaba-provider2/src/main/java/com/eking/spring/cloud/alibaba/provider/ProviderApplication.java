@@ -34,47 +34,45 @@ import org.springframework.web.bind.annotation.RestController;
 @SpringBootApplication
 public class ProviderApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(ProviderApplication.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(ProviderApplication.class, args);
+	}
+	@Value("${node}")
+	private String node;
+	@RestController
+	class EchoController {
 
-    @Value("${node}")
-    private String node;
+		@GetMapping("/")
+		public ResponseEntity<String> index() {
+			return new ResponseEntity<>("index error", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 
-    @RestController
-    class EchoController {
+		@GetMapping("/test")
+		public ResponseEntity<String> test() {
+			return new ResponseEntity<>("error", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 
-        @GetMapping("/")
-        public ResponseEntity<String> index() {
-            return new ResponseEntity<>("index error", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+		@GetMapping("/sleep")
+		public String sleep() {
+			try {
+				Thread.sleep(1000L);
+			}
+			catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			return "ok";
+		}
 
-        @GetMapping("/test")
-        public ResponseEntity<String> test() {
-            return new ResponseEntity<>("error", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+		@GetMapping("/echo/{string}")
+		public String echo(@PathVariable String string) {
+			return node + "hello Nacos Discovery " + string;
+		}
 
-        @GetMapping("/sleep")
-        public String sleep() {
-            try {
-                Thread.sleep(1000L);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            return "ok";
-        }
+		@GetMapping("/divide")
+		public String divide(@RequestParam Integer a, @RequestParam Integer b) {
+			return String.valueOf(a / b);
+		}
 
-        @GetMapping("/echo/{string}")
-        public String echo(@PathVariable String string) {
-            return node + "hello Nacos Discovery " + string;
-        }
-
-
-        @GetMapping("/divide")
-        public String divide(@RequestParam Integer a, @RequestParam Integer b) {
-            return String.valueOf(a / b);
-        }
-
-    }
+	}
 
 }
