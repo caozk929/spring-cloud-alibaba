@@ -5,7 +5,7 @@ import org.springframework.amqp.core.MessageListener;
 import org.springframework.stereotype.Service;
 
 /**
- * @author caozk  caozhaokui@kungeek.com
+ * @author caozk  caozhaokui
  * @version 1.00.00
  * @since
  */
